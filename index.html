@@ -12,93 +12,222 @@
     --ink:#1F2421; --ink-soft:#4A5148; --paper:#FAF7F0; --paper-alt:#EDE6D6; --card:#FFFFFF;
     --mustard:#C9A227; --rust:#A8462B; --sage:#6B7860;
     --line: rgba(31,36,33,0.16); --line-strong: rgba(31,36,33,0.32);
+    --nav-h: 76px;
   }
   *{ box-sizing:border-box; }
-  body{ margin:0; background:var(--paper); color:var(--ink); font-family:'Inter', sans-serif; line-height:1.5; }
+  html,body{ height:100%; margin:0; }
+  body{
+    background:var(--ink); color:var(--ink);
+    font-family:'Inter', sans-serif; line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px));
+  }
   h1,h2{ font-family:'Fraunces', serif; font-weight:500; margin:0; }
-  .wrap{ max-width:960px; margin:0 auto; padding:0 20px; }
-  header{ padding:20px 0; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; }
-  .wordmark{ font-size:1.4rem; font-style:italic; }
-  nav{ display:flex; gap:6px; background:var(--paper-alt); padding:3px; border-radius:999px; }
-  nav button{ border:none; background:transparent; padding:7px 14px; border-radius:999px; font-weight:600; font-size:0.84rem; cursor:pointer; }
-  nav button.active{ background:var(--card); }
-  .view{ display:none; padding:30px 0; }
+  .wrap{ max-width:520px; margin:0 auto; padding:0 20px; }
+
+  /* ===== bottom nav (Snapchat-style) ===== */
+  nav.tabbar{
+    position:fixed; left:0; right:0; bottom:0; z-index:50;
+    height: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: rgba(20,21,18,0.92);
+    backdrop-filter: blur(10px);
+    display:flex; align-items:center; justify-content:space-around;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+  nav.tabbar button{
+    background:none; border:none; color: rgba(255,255,255,0.55);
+    display:flex; flex-direction:column; align-items:center; gap:4px;
+    font-size:0.68rem; font-family:'Inter'; cursor:pointer; padding:6px 14px;
+  }
+  nav.tabbar button svg{ width:24px; height:24px; }
+  nav.tabbar button.active{ color:#fff; }
+  nav.tabbar button.camera-btn{
+    width:58px; height:58px; border-radius:50%;
+    background:#fff; border:3px solid var(--rust);
+    justify-content:center; padding:0; margin-top:-14px;
+  }
+  nav.tabbar button.camera-btn svg{ width:26px; height:26px; color:var(--ink); }
+  nav.tabbar button.camera-btn.active{ background:var(--rust); }
+  nav.tabbar button.camera-btn.active svg{ color:#fff; }
+
+  /* ===== views ===== */
+  .view{ display:none; min-height:100%; }
   .view.active{ display:block; }
-  .panel{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:22px; max-width:480px; }
-  .dropzone{ border:1.5px dashed var(--line-strong); border-radius:10px; padding:24px; text-align:center; cursor:pointer; display:block; }
+
+  /* ---- Camera / search view (default home) ---- */
+  #view-camera{
+    background: radial-gradient(circle at 50% 30%, #2a2d26, var(--ink) 70%);
+    min-height:100vh; color:#fff;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding: 40px 24px calc(var(--nav-h) + 40px);
+    text-align:center;
+  }
+  #view-camera .brand{ position:absolute; top:calc(env(safe-area-inset-top,0px) + 18px); font-family:'Fraunces'; font-style:italic; font-size:1.3rem; letter-spacing:0.02em; }
+  #view-camera .hint{ font-size:0.95rem; color:rgba(255,255,255,0.65); max-width:28ch; margin-bottom:34px; }
+  .shutter{
+    width:92px; height:92px; border-radius:50%;
+    border:4px solid rgba(255,255,255,0.85);
+    background: transparent;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; margin-bottom:18px;
+  }
+  .shutter .inner{ width:76px; height:76px; border-radius:50%; background:#fff; transition: transform .1s; }
+  .shutter:active .inner{ transform:scale(0.88); }
+  .gallery-link{ color:rgba(255,255,255,0.7); font-size:0.86rem; text-decoration:underline; cursor:pointer; background:none; border:none; font-family:'Inter'; }
   input[type=file]{ display:none; }
-  .btn{ margin-top:10px; width:100%; border:none; background:var(--rust); color:#fff; font-weight:600; padding:12px; border-radius:8px; cursor:pointer; display:block; text-align:center; text-decoration:none; }
+
+  .cam-preview{ width:160px; height:160px; border-radius:16px; object-fit:cover; margin-bottom:18px; border:1px solid rgba(255,255,255,0.2); }
+  .cam-status{ font-size:0.88rem; color:rgba(255,255,255,0.75); margin-bottom:10px; }
+
+  .results-sheet{
+    width:100%; max-width:520px; background:var(--paper); border-radius:20px 20px 0 0;
+    margin-top:24px; padding:20px 18px calc(var(--nav-h) + 20px); text-align:left; color:var(--ink);
+  }
+  .results-sheet h2{ font-size:1.1rem; margin-bottom:12px; }
+  .grid{ display:grid; grid-template-columns:repeat(2, 1fr); gap:12px; }
+  .card{ border:1px solid var(--line); border-radius:12px; overflow:hidden; background:var(--card); }
+  .card img{ width:100%; aspect-ratio:1; object-fit:cover; display:block; background:var(--paper-alt); }
+  .card-body{ padding:10px; }
+  .card-shop{ font-size:0.66rem; color:var(--ink-soft); text-transform:uppercase; }
+  .card-name{ font-family:'Fraunces'; font-size:0.9rem; }
+  .card-price{ font-size:0.82rem; font-weight:600; margin-top:2px; }
+  .match{ font-size:0.7rem; color:var(--sage); margin-top:2px; }
+  .maps-link{ display:block; margin-top:6px; font-size:0.72rem; color:var(--rust); text-decoration:none; }
+
+  /* ---- Feed view (t-shirt icon) ---- */
+  #view-feed{ background:var(--paper); min-height:100vh; padding-top: calc(env(safe-area-inset-top,0px) + 20px); }
+  #view-feed .wrap{ padding-bottom: 30px; }
+  #view-feed h1{ font-size:1.5rem; margin-bottom:4px; }
+  #view-feed .sub{ font-size:0.85rem; color:var(--ink-soft); margin-bottom:18px; }
+  .feed-grid{ display:grid; grid-template-columns:repeat(2, 1fr); gap:12px; }
+
+  /* ---- Profile view (person icon) ---- */
+  #view-profile{ background:var(--paper); min-height:100vh; padding-top: calc(env(safe-area-inset-top,0px) + 20px); }
+  #view-profile .wrap{ padding-bottom: 30px; }
+  .type-toggle{ display:flex; gap:8px; margin:16px 0 22px; }
+  .type-btn{
+    flex:1; padding:14px; border-radius:12px; border:1.5px solid var(--line-strong);
+    background:var(--card); text-align:center; cursor:pointer; font-family:'Inter'; font-weight:600; font-size:0.9rem;
+  }
+  .type-btn.active{ border-color:var(--rust); background: rgba(168,70,43,0.08); color:var(--rust); }
+  .panel{ background:var(--card); border:1px solid var(--line); border-radius:14px; padding:20px; }
+  .field{ margin-top:12px; }
+  .field label{ display:block; font-size:0.8rem; color:var(--ink-soft); margin-bottom:5px; }
+  .field input, .field select{ width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--line-strong); font-family:'Inter'; font-size:0.9rem; }
+  .field-row{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .btn{ margin-top:16px; width:100%; border:none; background:var(--rust); color:#fff; font-weight:600; padding:13px; border-radius:9px; cursor:pointer; font-family:'Inter'; font-size:0.95rem; }
   .btn:disabled{ opacity:0.4; }
   .btn-outline{ background:transparent; color:var(--ink); border:1px solid var(--line-strong); }
-  .field{ margin-top:12px; }
-  .field label{ display:block; font-size:0.8rem; color:var(--ink-soft); margin-bottom:4px; }
-  .field input{ width:100%; padding:9px 10px; border-radius:7px; border:1px solid var(--line-strong); }
-  .field-row{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-  .preview{ width:64px; height:64px; border-radius:8px; object-fit:cover; margin-top:10px; }
-  .grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(200px,1fr)); gap:14px; margin-top:20px; }
-  .card{ border:1px solid var(--line); border-radius:10px; overflow:hidden; background:var(--card); }
-  .card img{ width:100%; aspect-ratio:1; object-fit:cover; }
-  .card-body{ padding:12px; }
-  .card-shop{ font-size:0.72rem; color:var(--ink-soft); text-transform:uppercase; }
   .status{ font-size:0.8rem; color:var(--ink-soft); margin-top:8px; }
+  .shipping-row{ display:flex; align-items:center; gap:10px; margin-top:16px; padding:12px; background:var(--paper-alt); border-radius:10px; }
+  .shipping-row label{ font-size:0.85rem; flex:1; }
+  .preview-sm{ width:56px; height:56px; border-radius:8px; object-fit:cover; margin-top:10px; }
+  .note{ font-size:0.76rem; color:var(--ink-soft); margin-top:10px; line-height:1.4; }
 </style>
 </head>
 <body>
-<header class="wrap">
-  <div class="wordmark"><em>Pépite</em></div>
-  <nav>
-    <button class="active" data-view="search">Chercher</button>
-    <button data-view="add">Ajouter une pièce</button>
-  </nav>
-</header>
 
-<div class="wrap view active" id="view-search">
-  <h2>Trouve une pièce similaire</h2>
-  <div class="panel">
-    <label class="dropzone" for="searchFile">Choisis une photo</label>
-    <input type="file" id="searchFile" accept="image/*">
-    <label class="btn btn-outline" for="searchFileCam">📷 Prendre une photo</label>
-    <input type="file" id="searchFileCam" accept="image/*" capture="environment">
-    <img id="searchPreview" class="preview" style="display:none;">
-    <div class="status" id="searchStatus"></div>
+<!-- ===== CAMERA / SEARCH (home) ===== -->
+<div class="view active" id="view-camera">
+  <div class="brand">Pépite</div>
+  <div class="hint">Scanne un vêtement qui te plaît, on te trouve son équivalent en seconde main.</div>
+
+  <img id="searchPreview" class="cam-preview" style="display:none;">
+  <div class="cam-status" id="searchStatus"></div>
+
+  <label class="shutter" for="searchFileCam"><div class="inner"></div></label>
+  <input type="file" id="searchFileCam" accept="image/*" capture="environment">
+  <label class="gallery-link" for="searchFile">ou choisis une photo depuis ta galerie</label>
+  <input type="file" id="searchFile" accept="image/*">
+
+  <div class="results-sheet" id="resultsSheet" style="display:none;">
+    <h2 id="resultsTitle">Résultats</h2>
+    <div class="grid" id="searchResults"></div>
   </div>
-  <div class="grid" id="searchResults"></div>
 </div>
 
-<div class="wrap view" id="view-add">
-  <h2>Ajouter une pièce repérée en friperie</h2>
-  <div class="panel">
-    <label class="dropzone" for="addFile">Choisis une photo</label>
-    <input type="file" id="addFile" accept="image/*">
-    <label class="btn btn-outline" for="addFileCam">📷 Prendre une photo</label>
-    <input type="file" id="addFileCam" accept="image/*" capture="environment">
-    <img id="addPreview" class="preview" style="display:none;">
+<!-- ===== FEED (t-shirt icon) ===== -->
+<div class="view" id="view-feed">
+  <div class="wrap">
+    <h1>Le catalogue</h1>
+    <div class="sub">Les pièces repérées en friperie, les plus récentes d'abord.</div>
+    <div class="feed-grid" id="feedGrid"></div>
+  </div>
+</div>
 
-    <div class="field-row">
-      <div class="field"><label>Friperie</label><input type="text" id="addShop" placeholder="Ex. Guerrisol"></div>
-      <div class="field"><label>Taille</label><input type="text" id="addSize" placeholder="Ex. M"></div>
+<!-- ===== PROFILE (person icon) ===== -->
+<div class="view" id="view-profile">
+  <div class="wrap">
+    <h1>Ton profil</h1>
+    <div class="sub">Particulier ou friperie — ajoute tes pièces au catalogue.</div>
+
+    <div class="type-toggle">
+      <button class="type-btn active" id="typeParticulier" type="button">Particulier</button>
+      <button class="type-btn" id="typeFriperie" type="button">Friperie</button>
     </div>
-    <div class="field"><label>Prix</label><input type="text" id="addPrice" placeholder="Ex. 14 €"></div>
-    <div class="field"><label>Adresse (optionnel)</label><input type="text" id="addAddress" placeholder="Ex. 17 bd de la Chapelle"></div>
-    <div class="field"><label>Nom (optionnel)</label><input type="text" id="addName" placeholder="Ex. Pull bleu marine"></div>
 
-    <button class="btn" id="addSubmit" disabled>Ajouter au catalogue</button>
-    <div class="status" id="addStatus"></div>
+    <div class="panel">
+      <div class="field">
+        <label>Photo de la pièce</label>
+        <label class="btn btn-outline" for="addFileCam" style="display:block; text-align:center; margin-top:6px;">📷 Prendre une photo</label>
+        <input type="file" id="addFileCam" accept="image/*" capture="environment">
+        <label class="btn btn-outline" for="addFile" style="display:block; text-align:center;">Choisir depuis la galerie</label>
+        <input type="file" id="addFile" accept="image/*">
+        <img id="addPreview" class="preview-sm" style="display:none;">
+      </div>
+
+      <div class="field-row">
+        <div class="field" id="shopFieldWrap">
+          <label id="shopLabel">Friperie</label>
+          <input type="text" id="addShop" placeholder="Ex. Guerrisol">
+        </div>
+        <div class="field"><label>Taille</label><input type="text" id="addSize" placeholder="Ex. M"></div>
+      </div>
+      <div class="field"><label>Prix</label><input type="text" id="addPrice" placeholder="Ex. 14 €"></div>
+      <div class="field" id="addressField"><label>Adresse (optionnel)</label><input type="text" id="addAddress" placeholder="Ex. 17 bd de la Chapelle"></div>
+      <div class="field"><label>Nom (optionnel)</label><input type="text" id="addName" placeholder="Ex. Pull bleu marine"></div>
+
+      <div class="shipping-row" id="shippingRow" style="display:none;">
+        <input type="checkbox" id="shipsPackages" style="width:18px; height:18px;">
+        <label for="shipsPackages">On peut expédier cet article (donc l'acheteur peut l'acheter directement, pas juste le réserver)</label>
+      </div>
+
+      <button class="btn" id="addSubmit" disabled>Ajouter au catalogue</button>
+      <div class="status" id="addStatus"></div>
+      <p class="note">Si l'article n'est pas expédiable, un acheteur pourra le réserver jusqu'à la veille — plus possible le jour même, pour laisser le temps à la boutique de le retirer du rayon si besoin.</p>
+    </div>
   </div>
 </div>
+
+<!-- ===== BOTTOM NAV ===== -->
+<nav class="tabbar">
+  <button data-view="feed">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+    <span>Catalogue</span>
+  </button>
+  <button class="camera-btn active" data-view="camera">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h3l2-2h6l2 2h3a1 1 0 011 1v11a1 1 0 01-1 1H4a1 1 0 01-1-1V8a1 1 0 011-1z"/><circle cx="12" cy="13" r="3.5"/></svg>
+  </button>
+  <button data-view="profile">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"/></svg>
+    <span>Profil</span>
+  </button>
+</nav>
 
 <script>
-// ⚠️ Remplace cette URL par celle de TON backend une fois déployé sur Render.
 const BACKEND_URL = "https://pepite-backend-9kls.onrender.com";
 
-document.querySelectorAll('nav button').forEach(b => b.addEventListener('click', () => {
-  document.querySelectorAll('nav button').forEach(x => x.classList.remove('active'));
+/* ---- tab switching ---- */
+document.querySelectorAll('nav.tabbar button').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('nav.tabbar button').forEach(x => x.classList.remove('active'));
   b.classList.add('active');
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById('view-' + b.dataset.view).classList.add('active');
+  if (b.dataset.view === 'feed') loadFeed();
 }));
 
-// ---- search flow ----
+/* ---- search (camera home) flow ---- */
 let searchFile = null;
 const searchStatus = document.getElementById('searchStatus');
 ['searchFile','searchFileCam'].forEach(id => {
@@ -115,38 +244,80 @@ const searchStatus = document.getElementById('searchStatus');
 
 async function runSearch(){
   searchStatus.textContent = 'Recherche en cours…';
-  document.getElementById('searchResults').innerHTML = '';
+  document.getElementById('resultsSheet').style.display = 'none';
   try{
     const form = new FormData();
     form.append('image', searchFile);
     const res = await fetch(`${BACKEND_URL}/api/search`, { method: 'POST', body: form });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Erreur serveur');
-    searchStatus.textContent = `${data.results.length} résultat(s)`;
-    renderResults(data.results);
+    searchStatus.textContent = '';
+    document.getElementById('resultsTitle').textContent = `${data.results.length} pièce(s) similaire(s)`;
+    renderResults(data.results, document.getElementById('searchResults'));
+    document.getElementById('resultsSheet').style.display = 'block';
   } catch(e){
     searchStatus.textContent = "Erreur : " + e.message;
     console.error(e);
   }
 }
 
-function renderResults(items){
-  const grid = document.getElementById('searchResults');
-  grid.innerHTML = items.map(it => `
+function renderResults(items, container){
+  container.innerHTML = items.map(it => `
     <div class="card">
       <img src="${it.image_url}" alt="">
       <div class="card-body">
         <div class="card-shop">${it.shop}</div>
-        <div><b>${it.name || it.category || 'Pièce'}</b></div>
-        <div>${it.price}${it.size ? ' · taille ' + it.size : ''}</div>
-        <div class="status">${Math.round(it.similarity*100)}% de ressemblance</div>
-        ${it.address ? `<a class="btn btn-outline" style="margin-top:8px;" target="_blank" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(it.shop+', '+it.address)}">📍 ${it.address}</a>` : ''}
+        <div class="card-name">${it.name || it.category || 'Pièce'}</div>
+        <div class="card-price">${it.price}${it.size ? ' · ' + it.size : ''}</div>
+        ${typeof it.similarity === 'number' ? `<div class="match">${Math.round(it.similarity*100)}% de ressemblance</div>` : ''}
+        ${it.address ? `<a class="maps-link" target="_blank" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(it.shop+', '+it.address)}">📍 ${it.address}</a>` : ''}
       </div>
     </div>
-  `).join('');
+  `).join('') || "<p style=\"grid-column:1/-1; color:var(--ink-soft); font-size:0.85rem;\">Rien dans le catalogue pour l'instant.</p>";
 }
 
-// ---- add flow ----
+/* ---- feed ---- */
+let feedLoaded = false;
+async function loadFeed(){
+  const grid = document.getElementById('feedGrid');
+  grid.innerHTML = '<p style="color:var(--ink-soft); font-size:0.85rem;">Chargement…</p>';
+  try{
+    const res = await fetch(`${BACKEND_URL}/api/items`);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Erreur serveur');
+    renderResults(data.items, grid);
+  } catch(e){
+    grid.innerHTML = '<p style="color:var(--ink-soft); font-size:0.85rem;">Erreur de chargement.</p>';
+  }
+}
+
+/* ---- profile type toggle (particulier / friperie) ---- */
+const typeParticulier = document.getElementById('typeParticulier');
+const typeFriperie = document.getElementById('typeFriperie');
+const shopLabel = document.getElementById('shopLabel');
+const shippingRow = document.getElementById('shippingRow');
+const addressField = document.getElementById('addressField');
+let profileType = 'particulier';
+
+typeParticulier.addEventListener('click', () => setProfileType('particulier'));
+typeFriperie.addEventListener('click', () => setProfileType('friperie'));
+
+function setProfileType(type){
+  profileType = type;
+  typeParticulier.classList.toggle('active', type === 'particulier');
+  typeFriperie.classList.toggle('active', type === 'friperie');
+  if (type === 'friperie'){
+    shopLabel.textContent = 'Nom de la friperie';
+    shippingRow.style.display = 'flex';
+    addressField.style.display = 'block';
+  } else {
+    shopLabel.textContent = 'Ton nom';
+    shippingRow.style.display = 'none';
+    addressField.style.display = 'none';
+  }
+}
+
+/* ---- add-item flow ---- */
 let addFile = null;
 const addShop = document.getElementById('addShop');
 const addSize = document.getElementById('addSize');
@@ -181,6 +352,8 @@ addSubmit.addEventListener('click', async () => {
     form.append('price', addPrice.value.trim());
     form.append('address', document.getElementById('addAddress').value.trim());
     form.append('name', document.getElementById('addName').value.trim());
+    form.append('sellerType', profileType);
+    form.append('shipsPackages', document.getElementById('shipsPackages').checked ? 'true' : 'false');
     const res = await fetch(`${BACKEND_URL}/api/items`, { method: 'POST', body: form });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Erreur serveur');
@@ -189,6 +362,7 @@ addSubmit.addEventListener('click', async () => {
     document.getElementById('addAddress').value='';
     document.getElementById('addName').value='';
     document.getElementById('addPreview').style.display='none';
+    document.getElementById('shipsPackages').checked = false;
     addFile = null;
   } catch(e){
     addStatus.textContent = "Erreur : " + e.message;
@@ -196,6 +370,8 @@ addSubmit.addEventListener('click', async () => {
   }
   updateAddBtn();
 });
+
+setProfileType('particulier');
 </script>
 </body>
 </html>
